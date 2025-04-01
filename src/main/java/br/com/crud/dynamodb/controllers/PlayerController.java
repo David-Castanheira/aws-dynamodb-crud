@@ -3,6 +3,7 @@ package br.com.crud.dynamodb.controllers;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -94,10 +95,21 @@ public class PlayerController {
         return ResponseEntity.noContent().build();
     }
 
-    // @DeleteMapping("/{username}/games/{gameId}")
-    // public ResponseEntity<Void> delete(@PathVariable("username") String username, 
-    //                                     @PathVariable("gameId") String gameId) {
+    @DeleteMapping("/{username}/games/{gameId}")
+    public ResponseEntity<Void> delete(@PathVariable("username") String username, 
+                                        @PathVariable("gameId") String gameId) {
         
-    
-    // }
+        var entity = dynamoDbTemplate.load(Key.builder()
+                .partitionValue(username)
+                .sortValue(gameId)
+                .build(), PlayerHistoryEntity.class);
+        
+        if (entity == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        dynamoDbTemplate.delete(entity);
+
+        return ResponseEntity.noContent().build();
+    }
 }
